@@ -1,0 +1,5 @@
+nb_samples: 10
+nb_classes: 5
+batch_size: 8
+epochs: 5
+lr: 0.0003
