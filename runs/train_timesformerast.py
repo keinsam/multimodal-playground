@@ -23,9 +23,23 @@ EPOCHS = hparams['epochs']
 LR = hparams['lr']
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+def collate_fn(batch):
+    audio_inputs_list = []
+    video_inputs_list = []
+    labels_list = []
+    for audio_inputs, video_inputs, label in batch:
+        audio_inputs_list.append(audio_inputs['input_values'])
+        video_inputs_list.append(video_inputs['pixel_values'])
+        labels_list.append(label)
+    batched_audio = torch.stack(audio_inputs_list, dim=0)  # [B, 128, 1024]
+    batched_video = torch.stack(video_inputs_list, dim=0)  # [B, 3, 8, 224, 224]
+    batched_labels = torch.tensor(labels_list)
+    return {'input_values': batched_audio}, {'pixel_values': batched_video}, batched_labels
+
 model = TimeSformerAST(nb_classes=NB_CLASSES, hf_token=HF_TOKEN).to(DEVICE)
 dataset = DummyMultimodalDataset(nb_samples=NB_SAMPLES)
-dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LR)

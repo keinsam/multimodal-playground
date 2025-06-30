@@ -1,4 +1,4 @@
-nb_samples: 10
+nb_samples: 16
 nb_classes: 5
 batch_size: 8
 epochs: 5
