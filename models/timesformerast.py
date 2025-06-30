@@ -25,6 +25,7 @@ class TimeSformerAST(nn.Module):
     def forward(self, audio_inputs, video_inputs):
         input_values = audio_inputs['input_values']  # [B, 1, 128, 100] after batching
         pixel_values = video_inputs['pixel_values']  # [B, 3, 8, 224, 224] after batching
+        pixel_values = pixel_values.permute(0, 2, 1, 3, 4)
         ast_out = self.ast(input_values=input_values).last_hidden_state.mean(dim=1)
         timesformer_out = self.timesformer(pixel_values=pixel_values).last_hidden_state.mean(dim=1)
         fused = torch.cat([ast_out, timesformer_out], dim=1)
